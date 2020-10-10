@@ -6,7 +6,7 @@ before_install:
     - docker build -t lucca1236/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-    - docker run lucca1236/react-test npm test -- --coverage
+    - docker run -e CI=true lucca1236/react-test npm test
 
 after_success:
     - docker build -t lucca1236/multi-client ./client
@@ -20,3 +20,15 @@ after_success:
     - docker push lucca1236/multi-nginx
     - docker push lucca1236/multi-server
     - docker push lucca1236/multi-worker
+
+deploy:
+    provider: elasticbeanstalk
+    region: sa-east-1
+    app: multi-docker
+    env: MultiDocker-env
+    bucket_name: elasticbeanstalk-sa-east-1-326265173161
+    bucket_path: docker-multi
+    on:
+        branch: master
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
